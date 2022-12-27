@@ -1,51 +1,73 @@
-const canvas = document.getElementById("Gamewindow");
-var ctx = (canvas.getContext("2d"));
-ctx.canvas.width  = 600;
-ctx.canvas.height = 400;
+import {Point, Bounds, Size} from "./node_modules/josh_js_util/dist/index.js"
+
+const CANVAS_SIZE = new Size(600,400)
+
+const FRICTION = 0.95
+let canvas = null
+let ctx = null
+
+function setup_canvas() {
+    canvas = document.getElementById("Gamewindow");
+    ctx = (canvas.getContext("2d"));
+    ctx.canvas.width  = CANVAS_SIZE.w;
+    ctx.canvas.height = CANVAS_SIZE.h;
+}
+
+
+
 let cureentKeys = new Map();
+let powerup = new Bounds(new Point(50,50),new Size(20,20))
 let Player = {
     alive: true,
-    gravity: 5,
     lives: 1,
-    posx: 25,
-    posy: 400,
+    pos: new Point(25,100),
+    velocity: new Point(0,0),
+    gravity: new Point(0,5),
     grounded: true,
-    velocity: -0.1,
     speed:0.01,
 }
+
+function setup_player() {
+    Player.alive = true
+    Player.pos = new Point(25,100)
+    Player.velocity = new Point(0,0)
+    Player.gravity = new Point(0,0.1)
+    Player.grounded = false
+}
+
 let setHeight = null;
 let setWidth = null;
 
+const JUMP_POWER = -8
+
+
 function GravityFalling() {
-    if (Player.grounded === false){
-        Player.speed = Player.velocity + Player.speed
+    // update velocity from gravity
+    Player.velocity = Player.velocity.add(Player.gravity)
+
+    // if hit the ground
+    if (Player.pos.y >= 400) {
+        Player.pos.y = 400
+        Player.velocity.y = 0
+        Player.grounded = true
+        // if on the ground, then friction slows down velocity
+        Player.velocity = Player.velocity.scale(FRICTION)
     }
+
+    // if jump and on ground
     if (cureentKeys.get(' ') === true && Player.grounded === true) {
-        Player.posy -= 100;
+        Player.velocity = new Point(0,JUMP_POWER)
         Player.grounded = false;
     }
-    if (Player.posy >= 400) {
-        // console.log("GROUND")
-        Player.grounded = true
-        Player.posy = 400
-        Player.speed = 0.01
-    }
-    if (Player.grounded === false) {
-        Player.posy -= Player.speed
-    }
-    if (Player.posy >= Platform.posy && Player.posx <= Platform.posx) {
-        Player.grounded = true
-        Player.speed = 0.01
-        // console.log("FLOOR")
-    }
-    // console.log("Vel" + Player.velocity)
-    // console.log("Speed" + Player.speed)
-    // console.log("POSY" + Player.posy)
+
+    // update position from velocity
+    Player.pos = Player.pos.add(Player.velocity)
+
+    // console.log('vel',Player.velocity)
+
 }
-let Platform = {
-    posx: 40,
-    posy: 340,
-}
+let Platform = new Bounds(new Point(40,340),new Size(80,10))
+
 let FogStats = {
     fogH: 10,
     fogW: 10000,
@@ -90,9 +112,11 @@ let NUM = null;
 function PlatformRandome() {
     // Returns a random integer from 0 to 100:
     NUM = Math.floor(Math.random() * 300);
+    powerup.position = new Point(NUM,300-powerup.size.h)
     console.log(NUM)
 }
 function DrawRandomePlatform() {
+    ctx.fillStyle = 'red'
     ctx.fillRect(NUM,300,100,10);
 }
 
@@ -105,17 +129,18 @@ function FOG(){
 }
 function PLATFORM() {
     ctx.fillStyle = "red";
-    ctx.fillRect(Platform.posx - 40,Platform.posy - 5,80,10)
+    ctx.fillRect(Platform.position.x,Platform.position.y,Platform.size.w,Platform.size.h)
     ctx.fillStyle = "black"
 }
+const RUN_SPEED = new Point(0.7,0)
 function movePlayer() {
     if (cureentKeys.get("d") === true) {
-        // console.log("D")
-        Player.posx+=5;
+        Player.velocity = Player.velocity.add(RUN_SPEED)
+        if(Player.velocity.x > 10) Player.velocity.x = 10
     }
     if (cureentKeys.get("a") === true) {
-        // console.log("A")
-        Player.posx-=5;
+        Player.velocity = Player.velocity.subtract(RUN_SPEED)
+        if(Player.velocity.x < -5) Player.velocity.x = -5
     }
 }
 function setupKeyboard() {
@@ -131,12 +156,13 @@ function setupKeyboard() {
 function DrawPlayer() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (Player.alive === true) {
-        ctx.fillRect(Player.posx - 25,Player.posy - 50,50,50);
+        ctx.fillStyle = 'black'
+        ctx.fillRect(Player.pos.x - 25,Player.pos.y - 50,50,50);
     }
 }
 function POWERUP() {
     ctx.fillStyle = "blue"
-    ctx.fillRect(NUM,NUM,20,20)
+    ctx.fillRect(powerup.position.x,powerup.position.y,powerup.size.w,powerup.size.h)
     ctx.fillStyle = "black"
 }
 function LOOP() {
@@ -156,7 +182,9 @@ function LOOP() {
 
 
 export function start_game() {
+    setup_canvas()
     setupKeyboard();
     PlatformRandome();
+    setup_player()
     LOOP();
 }
