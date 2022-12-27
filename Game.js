@@ -133,6 +133,11 @@ function DrawPlayer() {
         ctx.fillRect(Player.posx - 25,Player.posy - 50,50,50);
     }
 }
+function POWERUP() {
+    ctx.fillStyle = "blue"
+    ctx.fillRect(NUM,NUM,20,20)
+    ctx.fillStyle = "black"
+}
 function LOOP() {
     GravityFalling();
     DrawPlayer();
@@ -143,6 +148,7 @@ function LOOP() {
     CheckFogHeight();
     Points();
     DrawRandomePlatform()
+    POWERUP();
 
     window.requestAnimationFrame(LOOP);
 }
