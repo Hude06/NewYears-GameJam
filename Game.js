@@ -52,40 +52,56 @@ let FogStats = {
     Transparence: 0.5,
     Speed:0.001,
     point:0,
+    moving: true,
 }
 function FogIncrease() {
-    for (let i = 0; i < 100; i++) {
-        FogStats.fogH+=FogStats.Speed;
-
+    if (FogStats.moving === true) {
+        for (let i = 0; i < 100; i++) {
+            FogStats.fogH+=FogStats.Speed;
+        }
     }
 }
 function Points() {
-    
+    if (Player.alive === true) {
         for (let i = 0; i < 50; i++) {
             FogStats.point += 0.001;
-            console.log(Math.round(FogStats.point))
+            // console.log(Math.round(FogStats.point))
             ctx.textAlign = "center";
+            // console.log(Player.alive)
             ctx.font="30px Comic Sans MS";
-            console.log(Player.alive)
             ctx.fillText("Points: " + Math.round(FogStats.point), canvas.width/2, 100);     
         }
+    } else {
+        ctx.fillText("Points: " + Math.round(FogStats.point), canvas.width/2, 100);
+    }
 }
 function CheckFogHeight(){ 
-    console.log(400 - Player.posy)
+    // console.log(400 - Player.posy)
     if (FogStats.fogH >= 50 + 400 - Player.posy) {
-        Platform.alive = false;
-        console.log("DEAD")
+        Player.alive = false;
+        // console.log("DEAD")
+        FogStats.moving = false;
         ctx.textAlign = "center";
         ctx.font="30px Comic Sans MS";
         ctx.fillText("You Died", canvas.width/2, canvas.height/2);     
     }
 }
+let NUM = null;
+function PlatformRandome() {
+    // Returns a random integer from 0 to 100:
+    NUM = Math.floor(Math.random() * 300); 
+    console.log(NUM)
+}
+function DrawRandomePlatform() {
+    ctx.fillRect(NUM,300,100,10);
+}
+
 function FOG(){
     ctx.fillStyle = "gray"
-    ctx.globalAlpha = FogStats.Transparence;
-    ctx.fillRect(0,400 - FogStats.fogH,FogStats.fogW,FogStats.fogH)
-    ctx.globalAlpha = 1.0;
-    ctx.fillStyle = "black"
+        ctx.globalAlpha = FogStats.Transparence;
+        ctx.fillRect(0,400 - FogStats.fogH,FogStats.fogW,FogStats.fogH)
+        ctx.globalAlpha = 1.0;
+        ctx.fillStyle = "black"
 }function PLATFORM() {
     ctx.fillStyle = "red";
     ctx.fillRect(Platform.posx - 40,Platform.posy - 5,80,10)
@@ -113,7 +129,9 @@ function setupKeyboard() {
 }
 function DrawPlayer() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);    
-    ctx.fillRect(Player.posx - 25,Player.posy - 50,50,50);
+    if (Player.alive === true) {
+        ctx.fillRect(Player.posx - 25,Player.posy - 50,50,50);
+    }
 }
 function LOOP() {
     GravityFalling();
@@ -124,7 +142,10 @@ function LOOP() {
     FogIncrease();
     CheckFogHeight();
     Points();
+    DrawRandomePlatform()
+
     window.requestAnimationFrame(LOOP);
 }
 setupKeyboard();
+PlatformRandome();
 LOOP();
