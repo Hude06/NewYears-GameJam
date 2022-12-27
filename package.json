@@ -1,0 +1,22 @@
+{
+  "name": "newyears-gamejam",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Game.js",
+  "scripts": {
+    "dev": "http-server ."
+  },
+  "dependencies": {
+    "josh_js_util": "^0.0.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hude06/NewYears-GameJam.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hude06/NewYears-GameJam/issues"
+  },
+  "homepage": "https://github.com/Hude06/NewYears-GameJam#readme"
+}

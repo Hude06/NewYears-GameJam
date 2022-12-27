@@ -69,13 +69,13 @@ function Points() {
             ctx.textAlign = "center";
             // console.log(Player.alive)
             ctx.font="30px Comic Sans MS";
-            ctx.fillText("Points: " + Math.round(FogStats.point), canvas.width/2, 100);     
+            ctx.fillText("Points: " + Math.round(FogStats.point), canvas.width/2, 100);
         }
     } else {
         ctx.fillText("Points: " + Math.round(FogStats.point), canvas.width/2, 100);
     }
 }
-function CheckFogHeight(){ 
+function CheckFogHeight(){
     // console.log(400 - Player.posy)
     if (FogStats.fogH >= 50 + 400 - Player.posy) {
         Player.alive = false;
@@ -83,13 +83,13 @@ function CheckFogHeight(){
         FogStats.moving = false;
         ctx.textAlign = "center";
         ctx.font="30px Comic Sans MS";
-        ctx.fillText("You Died", canvas.width/2, canvas.height/2);     
+        ctx.fillText("You Died", canvas.width/2, canvas.height/2);
     }
 }
 let NUM = null;
 function PlatformRandome() {
     // Returns a random integer from 0 to 100:
-    NUM = Math.floor(Math.random() * 300); 
+    NUM = Math.floor(Math.random() * 300);
     console.log(NUM)
 }
 function DrawRandomePlatform() {
@@ -102,7 +102,8 @@ function FOG(){
         ctx.fillRect(0,400 - FogStats.fogH,FogStats.fogW,FogStats.fogH)
         ctx.globalAlpha = 1.0;
         ctx.fillStyle = "black"
-}function PLATFORM() {
+}
+function PLATFORM() {
     ctx.fillStyle = "red";
     ctx.fillRect(Platform.posx - 40,Platform.posy - 5,80,10)
     ctx.fillStyle = "black"
@@ -128,7 +129,7 @@ function setupKeyboard() {
     });
 }
 function DrawPlayer() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (Player.alive === true) {
         ctx.fillRect(Player.posx - 25,Player.posy - 50,50,50);
     }
@@ -152,6 +153,10 @@ function LOOP() {
 
     window.requestAnimationFrame(LOOP);
 }
-setupKeyboard();
-PlatformRandome();
-LOOP();
+
+
+export function start_game() {
+    setupKeyboard();
+    PlatformRandome();
+    LOOP();
+}
