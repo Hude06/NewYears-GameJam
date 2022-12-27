@@ -5,6 +5,9 @@ const CANVAS_SIZE = new Size(600,400)
 const FRICTION = 0.95
 let canvas = null
 let ctx = null
+let tiles = null
+let BRICK_TILE = new Bounds(new Point(16*2,0), new Size(16,16))
+let POWERUP_TILE = new Bounds(new Point(16*3,0), new Size(16,16))
 
 function setup_canvas() {
     canvas = document.getElementById("Gamewindow");
@@ -66,7 +69,7 @@ function GravityFalling() {
     // console.log('vel',Player.velocity)
 
 }
-let Platform = new Bounds(new Point(40,340),new Size(80,10))
+let Platform = new Bounds(new Point(40,340),new Size(8*16,2*16))
 
 let FogStats = {
     fogH: 10,
@@ -116,8 +119,8 @@ function PlatformRandome() {
     console.log(NUM)
 }
 function DrawRandomePlatform() {
-    ctx.fillStyle = 'red'
-    ctx.fillRect(NUM,300,100,10);
+    let bounds = new Bounds(new Point(NUM,300), new Size(32*5,32))
+    fill_rect_with_tile(ctx,bounds,BRICK_TILE)
 }
 
 function FOG(){
@@ -127,10 +130,32 @@ function FOG(){
         ctx.globalAlpha = 1.0;
         ctx.fillStyle = "black"
 }
+
+function fill_rect_with_tile(ctx, rect, tile) {
+    if(tiles) {
+        let sc = 2
+        ctx.save()
+        ctx.translate(rect.position.x, rect.position.y)
+        ctx.beginPath()
+        ctx.rect(0, 0, rect.size.w, rect.size.h)
+        ctx.clip()
+        ctx.imageSmoothingEnabled = false
+        for (let j = 0; j < rect.size.h; j = j + 16 * sc) {
+            for (let i = 0; i < rect.size.w; i = i + 16 * sc) {
+                ctx.drawImage(tiles,
+                    tile.position.x, tile.position.y,
+                    tile.size.w, tile.size.h,
+                    i, 0, 16 * sc, 16 * sc)
+            }
+        }
+        ctx.restore()
+        ctx.strokeStyle = "black";
+        // ctx.strokeRect(rect.position.x,rect.position.y,rect.size.w,rect.size.h)
+    }
+}
+
 function PLATFORM() {
-    ctx.fillStyle = "red";
-    ctx.fillRect(Platform.position.x,Platform.position.y,Platform.size.w,Platform.size.h)
-    ctx.fillStyle = "black"
+    fill_rect_with_tile(ctx,Platform,BRICK_TILE)
 }
 const RUN_SPEED = new Point(0.5,0)
 const MAX_RUN_SPEED = 10
@@ -162,9 +187,7 @@ function DrawPlayer() {
     }
 }
 function POWERUP() {
-    ctx.fillStyle = "blue"
-    ctx.fillRect(powerup.position.x,powerup.position.y,powerup.size.w,powerup.size.h)
-    ctx.fillStyle = "black"
+    fill_rect_with_tile(ctx,powerup,POWERUP_TILE)
 }
 function LOOP() {
     GravityFalling();
@@ -182,7 +205,16 @@ function LOOP() {
 }
 
 
+function load_tiles() {
+    tiles = new Image()
+    tiles.addEventListener('load',() => {
+        console.log("tile image is loaded",tiles)
+    })
+    tiles.src = "./risefall@1.png"
+}
+
 export function start_game() {
+    load_tiles()
     setup_canvas()
     setupKeyboard();
     PlatformRandome();
