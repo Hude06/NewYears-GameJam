@@ -132,15 +132,16 @@ function PLATFORM() {
     ctx.fillRect(Platform.position.x,Platform.position.y,Platform.size.w,Platform.size.h)
     ctx.fillStyle = "black"
 }
-const RUN_SPEED = new Point(0.7,0)
+const RUN_SPEED = new Point(0.5,0)
+const MAX_RUN_SPEED = 10
 function movePlayer() {
-    if (cureentKeys.get("d") === true) {
+    if (cureentKeys.get("d") === true || cureentKeys.get('ArrowRight') === true) {
         Player.velocity = Player.velocity.add(RUN_SPEED)
-        if(Player.velocity.x > 10) Player.velocity.x = 10
+        if(Player.velocity.x > MAX_RUN_SPEED) Player.velocity.x = MAX_RUN_SPEED
     }
-    if (cureentKeys.get("a") === true) {
+    if (cureentKeys.get("a") === true || cureentKeys.get('ArrowLeft') === true) {
         Player.velocity = Player.velocity.subtract(RUN_SPEED)
-        if(Player.velocity.x < -5) Player.velocity.x = -5
+        if(Player.velocity.x < -MAX_RUN_SPEED) Player.velocity.x = -MAX_RUN_SPEED
     }
 }
 function setupKeyboard() {
