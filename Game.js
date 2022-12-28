@@ -41,7 +41,7 @@ function setup_player() {
 let setHeight = null;
 let setWidth = null;
 
-const JUMP_POWER = -8
+const JUMP_POWER = -5
 
 
 function GravityFalling() {
@@ -102,7 +102,7 @@ function Points() {
 }
 function CheckFogHeight(){
     // console.log(400 - Player.posy)
-    if (FogStats.fogH >= 50 + 400 - Player.posy) {
+    if (FogStats.fogH >= 50 + 400 - Player.y) {
         Player.alive = false;
         // console.log("DEAD")
         FogStats.moving = false;
@@ -157,7 +157,7 @@ function fill_rect_with_tile(ctx, rect, tile) {
 function PLATFORM() {
     fill_rect_with_tile(ctx,Platform,BRICK_TILE)
 }
-const RUN_SPEED = new Point(0.5,0)
+const RUN_SPEED = new Point(0.1,0)
 const MAX_RUN_SPEED = 10
 function movePlayer() {
     if (cureentKeys.get("d") === true || cureentKeys.get('ArrowRight') === true) {
