@@ -18,12 +18,13 @@ const FRICTION = 0.95
 let canvas = null
 let ctx = null
 let tiles = null
-let Background = new Image();
-Background.src = "./Grafics/Background.png"
+// let Background = new Image();
+// Background.src = "./Grafics/Background.png"
 let BRICK_TILE = new Bounds(new Point(16*2,0), new Size(16,16))
 let POWERUP_TILE = new Bounds(new Point(16*3,0), new Size(16,16))
 let PLAYER_TILE = new Bounds(new Point(0,16), new Size(16,16))
 let GROUND_TILE = new Bounds(new Point(16,16), new Size(16,16))
+let BACKGROUND_TILE = new Bounds(new Point(0,0), new Size(16,16))
 
 function setup_canvas() {
     canvas = document.getElementById("Gamewindow");
@@ -56,12 +57,11 @@ function setup_player() {
     Player.grounded = false
 }
 
-let setHeight = null;
-let setWidth = null;
 
 const JUMP_POWER = -5
 
-const ground = new Bounds(new Point(0,400-32),new Size(16*32,16*2))
+const ground = new Bounds(new Point(-32*10,400-32),new Size(16*32*8,16*2))
+const background = new Bounds(new Point(-32*10,0), new Size(32*40, 32*20))
 
 function GravityFalling() {
     // update velocity from gravity
@@ -146,9 +146,11 @@ function CheckFogHeight(){
         ctx.fillText("You Died", canvas.width/2, canvas.height/2);
     }
 }
-function scrollingBackground() {
-    ctx.drawImage(Background,current_scroll/2, 0,5000/5,3000/5);
-    // console.log("Drawing Image");
+function draw_background() {
+    ctx.save()
+    ctx.translate(current_scroll/2,0)
+    fill_rect_with_tile(ctx,background,BACKGROUND_TILE)
+    ctx.restore()
 }
 // let NUM = null;
 // function PlatformRandome() {
@@ -184,7 +186,7 @@ function fill_rect_with_tile(ctx, rect, tile) {
                 ctx.drawImage(tiles,
                     tile.position.x, tile.position.y,
                     tile.size.w, tile.size.h,
-                    i, 0, 16 * sc, 16 * sc)
+                    i, j, 16 * sc, 16 * sc)
             }
         }
         ctx.restore()
@@ -230,8 +232,6 @@ function OpenMenuUI() {
     }
 }
 function DrawPlayer() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    scrollingBackground();
     if (Player.alive === true) {
         ctx.save()
         ctx.translate(current_scroll,0)
@@ -261,6 +261,8 @@ function LOOP() {
     check_powerups()
     movePlayer();
     current_scroll = -Player.pos.x+300
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    draw_background();
     DrawPlayer();
     draw_platforms();
     FOG();
