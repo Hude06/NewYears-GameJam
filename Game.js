@@ -22,6 +22,7 @@ let Background = new Image();
 Background.src = "./Grafics/Background.png"
 let BRICK_TILE = new Bounds(new Point(16*2,0), new Size(16,16))
 let POWERUP_TILE = new Bounds(new Point(16*3,0), new Size(16,16))
+let PLAYER_TILE = new Bounds(new Point(0,16), new Size(16,16))
 
 function setup_canvas() {
     canvas = document.getElementById("Gamewindow");
@@ -38,7 +39,7 @@ let Player = {
     alive: true,
     lives: 1,
     pos: new Point(25,100),
-    size: new Size(25,25),
+    size: new Size(16,16),
     velocity: new Point(0,0),
     gravity: new Point(0,5),
     grounded: true,
@@ -190,8 +191,12 @@ function fill_rect_with_tile(ctx, rect, tile) {
     }
 }
 
+let current_scroll = 0
 function draw_platforms() {
+    ctx.save()
+    ctx.translate(current_scroll,0)
     platforms.forEach(plat => fill_rect_with_tile(ctx,plat,BRICK_TILE))
+    ctx.restore()
 }
 const RUN_SPEED = new Point(0.1,0)
 const MAX_RUN_SPEED = 10
@@ -225,8 +230,10 @@ function DrawPlayer() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     scrollingBackground();
     if (Player.alive === true) {
-        ctx.fillStyle = 'black'
-        ctx.fillRect(Player.pos.x ,Player.pos.y ,Player.size.w,Player.size.h);
+        let player_bounds = new Bounds(Player.pos, Player.size)
+        fill_rect_with_tile(ctx,player_bounds,PLAYER_TILE)
+        // ctx.fillStyle = 'black'
+        // ctx.fillRect(Player.pos.x ,Player.pos.y ,Player.size.w,Player.size.h);
     }
     // console.log(cureentKeys.get === "Escape" == true)
 }
