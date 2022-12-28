@@ -102,7 +102,7 @@ function Points() {
 }
 function CheckFogHeight(){
     // console.log(400 - Player.posy)
-    if (FogStats.fogH >= 50 + 400 - Player.y) {
+    if (FogStats.fogH >= 50 + 400 - Player.pos.y) {
         Player.alive = false;
         // console.log("DEAD")
         FogStats.moving = false;
@@ -125,10 +125,10 @@ function DrawRandomePlatform() {
 
 function FOG(){
     ctx.fillStyle = "gray"
-        ctx.globalAlpha = FogStats.Transparence;
-        ctx.fillRect(0,400 - FogStats.fogH,FogStats.fogW,FogStats.fogH)
-        ctx.globalAlpha = 1.0;
-        ctx.fillStyle = "black"
+    ctx.globalAlpha = FogStats.Transparence;
+    ctx.fillRect(0,400 - FogStats.fogH,FogStats.fogW,FogStats.fogH)
+    ctx.globalAlpha = 1.0;
+    ctx.fillStyle = "black"
 }
 
 function fill_rect_with_tile(ctx, rect, tile) {
@@ -188,6 +188,11 @@ function DrawPlayer() {
 }
 function POWERUP() {
     fill_rect_with_tile(ctx,powerup,POWERUP_TILE)
+    // console.log(bounds)
+    // ctx.fillRect(0,0,Player.bounds.x, Player.bounds.y)
+}
+function CheckPowerup() {
+
 }
 function LOOP() {
     GravityFalling();
@@ -200,7 +205,6 @@ function LOOP() {
     Points();
     DrawRandomePlatform()
     POWERUP();
-
     window.requestAnimationFrame(LOOP);
 }
 
