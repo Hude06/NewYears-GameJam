@@ -23,6 +23,7 @@ Background.src = "./Grafics/Background.png"
 let BRICK_TILE = new Bounds(new Point(16*2,0), new Size(16,16))
 let POWERUP_TILE = new Bounds(new Point(16*3,0), new Size(16,16))
 let PLAYER_TILE = new Bounds(new Point(0,16), new Size(16,16))
+let GROUND_TILE = new Bounds(new Point(16,16), new Size(16,16))
 
 function setup_canvas() {
     canvas = document.getElementById("Gamewindow");
@@ -34,12 +35,12 @@ function setup_canvas() {
 
 
 let cureentKeys = new Map();
-let powerup = new Bounds(new Point(50,200),new Size(20,20))
+let powerup = new Bounds(new Point(50,200),new Size(32,32))
 let Player = {
     alive: true,
     lives: 1,
     pos: new Point(25,100),
-    size: new Size(16,16),
+    size: new Size(32,32),
     velocity: new Point(0,0),
     gravity: new Point(0,5),
     grounded: true,
@@ -49,7 +50,7 @@ let Player = {
 function setup_player() {
     Player.alive = true
     Player.pos = new Point(25,100)
-    Player.size = new Size(25,25)
+    Player.size = new Size(32,32)
     Player.velocity = new Point(0,0)
     Player.gravity = new Point(0,0.1)
     Player.grounded = false
@@ -60,14 +61,15 @@ let setWidth = null;
 
 const JUMP_POWER = -5
 
+const ground = new Bounds(new Point(0,400-32),new Size(16*32,16*2))
 
 function GravityFalling() {
     // update velocity from gravity
     Player.velocity = Player.velocity.add(Player.gravity)
 
     // if hit the ground
-    if (Player.pos.y + Player.size.h >= 400) {
-        Player.pos.y = 400 - Player.size.h
+    if (Player.pos.y + Player.size.h >= ground.position.y) {
+        Player.pos.y = ground.position.y - Player.size.h
         Player.velocity.y = 0
         Player.grounded = true
     }
@@ -145,7 +147,7 @@ function CheckFogHeight(){
     }
 }
 function scrollingBackground() {
-    ctx.drawImage(Background,0, 0,5000/5,3000/5);
+    ctx.drawImage(Background,current_scroll/2, 0,5000/5,3000/5);
     // console.log("Drawing Image");
 }
 // let NUM = null;
@@ -195,6 +197,7 @@ let current_scroll = 0
 function draw_platforms() {
     ctx.save()
     ctx.translate(current_scroll,0)
+    fill_rect_with_tile(ctx,ground,GROUND_TILE)
     platforms.forEach(plat => fill_rect_with_tile(ctx,plat,BRICK_TILE))
     ctx.restore()
 }
@@ -230,8 +233,11 @@ function DrawPlayer() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     scrollingBackground();
     if (Player.alive === true) {
+        ctx.save()
+        ctx.translate(current_scroll,0)
         let player_bounds = new Bounds(Player.pos, Player.size)
         fill_rect_with_tile(ctx,player_bounds,PLAYER_TILE)
+        ctx.restore()
         // ctx.fillStyle = 'black'
         // ctx.fillRect(Player.pos.x ,Player.pos.y ,Player.size.w,Player.size.h);
     }
@@ -254,6 +260,7 @@ function LOOP() {
     GravityFalling();
     check_powerups()
     movePlayer();
+    current_scroll = -Player.pos.x+300
     DrawPlayer();
     draw_platforms();
     FOG();
