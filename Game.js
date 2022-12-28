@@ -1,4 +1,16 @@
 import {Point, Bounds, Size} from "./node_modules/josh_js_util/dist/index.js"
+Bounds.prototype.intersects = function(bounds) {
+    //check if each corner is inside the other bounds
+    let p1 = new Point(this.position.x,this.position.y)
+    if(bounds.contains(p1)) return true
+    let p2 = new Point(this.position.x + this.size.w,this.position.y)
+    if(bounds.contains(p2)) return true
+    let p3 = new Point(this.position.x,this.position.y+this.size.h)
+    if(bounds.contains(p3)) return true
+    let p4 = new Point(this.position.x+this.size.w,this.position.y+this.size.h)
+    if(bounds.contains(p4)) return true
+    return false
+}
 
 const CANVAS_SIZE = new Size(600,400)
 
@@ -21,11 +33,12 @@ function setup_canvas() {
 
 
 let cureentKeys = new Map();
-let powerup = new Bounds(new Point(50,50),new Size(20,20))
+let powerup = new Bounds(new Point(50,200),new Size(20,20))
 let Player = {
     alive: true,
     lives: 1,
     pos: new Point(25,100),
+    size: new Size(25,25),
     velocity: new Point(0,0),
     gravity: new Point(0,5),
     grounded: true,
@@ -35,6 +48,7 @@ let Player = {
 function setup_player() {
     Player.alive = true
     Player.pos = new Point(25,100)
+    Player.size = new Size(25,25)
     Player.velocity = new Point(0,0)
     Player.gravity = new Point(0,0.1)
     Player.grounded = false
@@ -51,11 +65,24 @@ function GravityFalling() {
     Player.velocity = Player.velocity.add(Player.gravity)
 
     // if hit the ground
-    if (Player.pos.y >= 400) {
-        Player.pos.y = 400
+    if (Player.pos.y + Player.size.h >= 400) {
+        Player.pos.y = 400 - Player.size.h
         Player.velocity.y = 0
         Player.grounded = true
-        // if on the ground, then friction slows down velocity
+    }
+
+    // if intersect with platform
+    let player_bounds = new Bounds(Player.pos, Player.size)
+    platforms.forEach(plat => {
+        if(player_bounds.intersects(plat)) {
+            Player.pos.y = plat.position.y - Player.size.h
+            Player.velocity.y = 0
+            Player.grounded = true
+        }
+    })
+
+    // if on the ground, then friction slows down velocity
+    if(Player.grounded) {
         Player.velocity = Player.velocity.scale(FRICTION)
     }
 
@@ -71,7 +98,10 @@ function GravityFalling() {
     // console.log('vel',Player.velocity)
 
 }
-let Platform = new Bounds(new Point(40,340),new Size(8*16,2*16))
+//let Platform = new Bounds(new Point(40,340),new Size(8*16,2*16))
+let platforms = []
+platforms.push(new Bounds(new Point(100,300), new Size(8*16, 2*16)))
+platforms.push(new Bounds(new Point(200,200), new Size(8*16, 2*16)))
 
 let FogStats = {
     fogH: 10,
@@ -88,7 +118,7 @@ function FogIncrease() {
         }
     }
 }
-function Points() {
+function draw_points() {
     if (Player.alive === true) {
         for (let i = 0; i < 50; i++) {
             FogStats.point += 0.001;
@@ -115,19 +145,19 @@ function CheckFogHeight(){
 }
 function scrollingBackground() {
     ctx.drawImage(Background,0, 0,5000/5,3000/5);
-    console.log("Drawing Image");
+    // console.log("Drawing Image");
 }
-let NUM = null;
-function PlatformRandome() {
-    // Returns a random integer from 0 to 100:
-    NUM = Math.floor(Math.random() * 300);
-    powerup.position = new Point(NUM,300-powerup.size.h)
-    console.log(NUM)
-}
-function DrawRandomePlatform() {
-    let bounds = new Bounds(new Point(NUM,300), new Size(32*5,32))
-    fill_rect_with_tile(ctx,bounds,BRICK_TILE)
-}
+// let NUM = null;
+// function PlatformRandome() {
+//     // Returns a random integer from 0 to 100:
+//     NUM = Math.floor(Math.random() * 300);
+//     powerup.position = new Point(NUM,300-powerup.size.h)
+//     // console.log(NUM)
+// }
+// function DrawRandomePlatform() {
+//     let bounds = new Bounds(new Point(NUM,300), new Size(32*5,32))
+//     fill_rect_with_tile(ctx,bounds,BRICK_TILE)
+// }
 
 function FOG(){
     ctx.fillStyle = "gray"
@@ -160,8 +190,8 @@ function fill_rect_with_tile(ctx, rect, tile) {
     }
 }
 
-function PLATFORM() {
-    fill_rect_with_tile(ctx,Platform,BRICK_TILE)
+function draw_platforms() {
+    platforms.forEach(plat => fill_rect_with_tile(ctx,plat,BRICK_TILE))
 }
 const RUN_SPEED = new Point(0.1,0)
 const MAX_RUN_SPEED = 10
@@ -196,28 +226,35 @@ function DrawPlayer() {
     scrollingBackground();
     if (Player.alive === true) {
         ctx.fillStyle = 'black'
-        ctx.fillRect(Player.pos.x - 25,Player.pos.y - 50,50,50);
+        ctx.fillRect(Player.pos.x ,Player.pos.y ,Player.size.w,Player.size.h);
     }
-    console.log(cureentKeys.get === "Escape" == true)
+    // console.log(cureentKeys.get === "Escape" == true)
 }
-function POWERUP() {
-    fill_rect_with_tile(ctx,powerup,POWERUP_TILE)
-    // console.log(bounds)
-    // ctx.fillRect(0,0,Player.bounds.x, Player.bounds.y)
+function draw_powerups() {
+    if(powerup !== null) fill_rect_with_tile(ctx,powerup,POWERUP_TILE)
 }
 
+
+function check_powerups() {
+    let player_bounds = new Bounds(Player.pos, Player.size)
+    if(powerup !== null && player_bounds.intersects(powerup)) {
+        console.log("we are on top of the powerup")
+        powerup = null
+    }
+}
 
 function LOOP() {
     GravityFalling();
-    DrawPlayer();
+    check_powerups()
     movePlayer();
-    PLATFORM();
+    DrawPlayer();
+    draw_platforms();
     FOG();
     FogIncrease();
     CheckFogHeight();
-    Points();
-    POWERUP();
-    DrawRandomePlatform()
+    draw_points();
+    draw_powerups();
+    // DrawRandomePlatform()
     OpenMenuUI()
 
     window.requestAnimationFrame(LOOP);
@@ -236,7 +273,7 @@ export function start_game() {
     load_tiles()
     setup_canvas()
     setupKeyboard();
-    PlatformRandome();
+    // PlatformRandome();
     setup_player()
     LOOP();
 }
