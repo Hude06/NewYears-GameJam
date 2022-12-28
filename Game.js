@@ -137,8 +137,12 @@ function draw_points() {
 }
 function CheckFogHeight(){
     // console.log(400 - Player.posy)
-    if (FogStats.fogH >= 50 + 400 - Player.pos.y) {
+    // console.log("FogH" + FogStats.fogH)
+    console.log(ground.position.y - Player.pos.y)
+    // console.log("PosY" + ground.position.y - Player.pos.y)
+    if (FogStats.fogH >= 32 + ground.position.y - Player.pos.y) {
         Player.alive = false;
+        
         // console.log("DEAD")
         FogStats.moving = false;
         ctx.textAlign = "center";
@@ -225,12 +229,6 @@ function setupKeyboard() {
         cureentKeys.set(event.key,false);
     });
 }
-function OpenMenuUI() {
-    if (cureentKeys.get === "Escape" === true) {
-        console.log("TRUE")
-
-    }
-}
 function DrawPlayer() {
     if (Player.alive === true) {
         ctx.save()
@@ -244,7 +242,10 @@ function DrawPlayer() {
     // console.log(cureentKeys.get === "Escape" == true)
 }
 function draw_powerups() {
+    ctx.save();
+    ctx.translate(current_scroll,0)
     if(powerup !== null) fill_rect_with_tile(ctx,powerup,POWERUP_TILE)
+    ctx.restore();
 }
 
 
@@ -271,7 +272,7 @@ function LOOP() {
     draw_points();
     draw_powerups();
     // DrawRandomePlatform()
-    OpenMenuUI()
+    //OpenMenuUI()
 
     window.requestAnimationFrame(LOOP);
 }
