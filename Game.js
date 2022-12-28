@@ -6,6 +6,8 @@ const FRICTION = 0.95
 let canvas = null
 let ctx = null
 let tiles = null
+let Background = new Image();
+Background.src = "./Grafics/Background.png"
 let BRICK_TILE = new Bounds(new Point(16*2,0), new Size(16,16))
 let POWERUP_TILE = new Bounds(new Point(16*3,0), new Size(16,16))
 
@@ -111,6 +113,10 @@ function CheckFogHeight(){
         ctx.fillText("You Died", canvas.width/2, canvas.height/2);
     }
 }
+function scrollingBackground() {
+    ctx.drawImage(Background,0, 0,5000/5,3000/5);
+    console.log("Drawing Image");
+}
 let NUM = null;
 function PlatformRandome() {
     // Returns a random integer from 0 to 100:
@@ -179,21 +185,28 @@ function setupKeyboard() {
         cureentKeys.set(event.key,false);
     });
 }
+function OpenMenuUI() {
+    if (cureentKeys.get === "Escape" === true) {
+        console.log("TRUE")
+
+    }
+}
 function DrawPlayer() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    scrollingBackground();
     if (Player.alive === true) {
         ctx.fillStyle = 'black'
         ctx.fillRect(Player.pos.x - 25,Player.pos.y - 50,50,50);
     }
+    console.log(cureentKeys.get === "Escape" == true)
 }
 function POWERUP() {
     fill_rect_with_tile(ctx,powerup,POWERUP_TILE)
     // console.log(bounds)
     // ctx.fillRect(0,0,Player.bounds.x, Player.bounds.y)
 }
-function CheckPowerup() {
 
-}
+
 function LOOP() {
     GravityFalling();
     DrawPlayer();
@@ -203,8 +216,10 @@ function LOOP() {
     FogIncrease();
     CheckFogHeight();
     Points();
-    DrawRandomePlatform()
     POWERUP();
+    DrawRandomePlatform()
+    OpenMenuUI()
+
     window.requestAnimationFrame(LOOP);
 }
 
